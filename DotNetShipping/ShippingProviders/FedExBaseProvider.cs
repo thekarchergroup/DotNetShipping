@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Web.Services.Protocols;
+using System.Xml.Serialization;
 
 using DotNetShipping.RateServiceWebReference;
 
@@ -108,17 +109,49 @@ namespace DotNetShipping.ShippingProviders
         /// <param name="request"></param>
         protected abstract void SetShipmentDetails(RateRequest request);
 
-		/// <summary>
+        protected void WriteRequestXML(RateRequest req)
+        {
+            XmlSerializer writer = new XmlSerializer(typeof(RateRequest));
+            var path = AppDomain.CurrentDomain.BaseDirectory + "\\App_Data\\dotNetShipping\\" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "FedEx-Request.xml";
+            System.IO.FileStream file = System.IO.File.Create(path);
+
+            writer.Serialize(file, req);
+            file.Close();
+        }
+        
+        protected void WriteResponseXML(RateReply req)
+        {
+            XmlSerializer writer = new XmlSerializer(typeof(RateReply));
+            var path = AppDomain.CurrentDomain.BaseDirectory + "\\App_Data\\dotNetShipping\\" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "FedEx-Response.xml";
+            System.IO.FileStream file = System.IO.File.Create(path);
+
+            writer.Serialize(file, req);
+            file.Close();
+        }
+
+        /// <summary>
         /// Gets rates
         /// </summary>
         public override void GetRates()
         {
             var request = CreateRateRequest();
+
+            if (DebugLogging)
+            {
+                WriteRequestXML(request);
+            }
+
             var service = new RateService(_useProduction);
             try
             {
                 // Call the web service passing in a RateRequest and returning a RateReply
                 var reply = service.getRates(request);
+                
+                if (DebugLogging)
+                {
+                    WriteResponseXML(reply);
+                }
+
                 //
                 if (reply.HighestSeverity == NotificationSeverityType.SUCCESS || reply.HighestSeverity == NotificationSeverityType.NOTE || reply.HighestSeverity == NotificationSeverityType.WARNING)
                 {
