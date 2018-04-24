@@ -147,7 +147,64 @@ namespace DotNetShipping.ShippingProviders
                 var netCharge = rateReplyDetail.RatedShipmentDetails.Max(x => x.ShipmentRateDetail.TotalNetCharge.Amount);
 
                 var key = rateReplyDetail.ServiceType.ToString();
-                var deliveryDate = rateReplyDetail.DeliveryTimestampSpecified ? rateReplyDetail.DeliveryTimestamp : DateTime.Now.AddDays(30);
+
+                var deliveryDate = DateTime.Now.AddDays(30);
+                if (rateReplyDetail.DeliveryTimestampSpecified)
+                {
+                    deliveryDate = rateReplyDetail.DeliveryTimestamp;
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.ONE_DAY)
+                {
+                    deliveryDate = DateTime.Now.AddDays(1);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.TWO_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(2);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.THREE_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(3);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.FOUR_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(4);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.FIVE_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(5);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.SIX_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(6);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.SEVEN_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(7);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.EIGHT_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(8);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.NINE_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(9);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.TEN_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(10);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.ELEVEN_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(11);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.TWELVE_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(12);
+                }
+                else if (rateReplyDetail.TransitTime == TransitTimeType.THIRTEEN_DAYS)
+                {
+                    deliveryDate = DateTime.Now.AddDays(13);
+                }
 
                 if (_serviceCodes.ContainsKey(key))
                 {
