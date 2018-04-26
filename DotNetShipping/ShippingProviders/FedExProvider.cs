@@ -42,16 +42,16 @@ namespace DotNetShipping.ShippingProviders
         /// <param name="accountNumber"></param>
         /// <param name="meterNumber"></param>
         /// <param name="useProduction"></param>
-        /// <param name="debugLogging"></param>
-        public FedExProvider(string key, string password, string accountNumber, string meterNumber, bool useProduction, bool debugLogging = false)
+        /// <param name="debugFileLocation"></param>
+        public FedExProvider(string key, string password, string accountNumber, string meterNumber, bool useProduction, string debugFileLocation = "")
         {
-            Init(key, password, accountNumber, meterNumber, useProduction, debugLogging);
+            Init(key, password, accountNumber, meterNumber, useProduction, debugFileLocation);
         }
 
-        private void Init(string key, string password, string accountNumber, string meterNumber, bool useProduction, bool debugLogging = false)
+        private void Init(string key, string password, string accountNumber, string meterNumber, bool useProduction, string debugFileLocation = "")
         {
             Name = "FedEx";
-            DebugLogging = debugLogging;
+            DebugFileLocation = debugFileLocation;
             _key = key;
             _password = password;
             _accountNumber = accountNumber;

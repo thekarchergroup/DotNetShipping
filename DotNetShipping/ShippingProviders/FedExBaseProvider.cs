@@ -112,7 +112,7 @@ namespace DotNetShipping.ShippingProviders
         protected void WriteRequestXML(RateRequest req)
         {
             XmlSerializer writer = new XmlSerializer(typeof(RateRequest));
-            var path = AppDomain.CurrentDomain.BaseDirectory + "\\App_Data\\dotNetShipping\\" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "FedEx-Request.xml";
+            var path = DebugFileLocation + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "FedEx-Request.xml";
             System.IO.FileStream file = System.IO.File.Create(path);
 
             writer.Serialize(file, req);
@@ -122,7 +122,7 @@ namespace DotNetShipping.ShippingProviders
         protected void WriteResponseXML(RateReply req)
         {
             XmlSerializer writer = new XmlSerializer(typeof(RateReply));
-            var path = AppDomain.CurrentDomain.BaseDirectory + "\\App_Data\\dotNetShipping\\" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "FedEx-Response.xml";
+            var path = DebugFileLocation + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "FedEx-Response.xml";
             System.IO.FileStream file = System.IO.File.Create(path);
 
             writer.Serialize(file, req);
@@ -136,7 +136,7 @@ namespace DotNetShipping.ShippingProviders
         {
             var request = CreateRateRequest();
 
-            if (DebugLogging)
+            if (DebugFileLocation != "")
             {
                 WriteRequestXML(request);
             }
@@ -147,7 +147,7 @@ namespace DotNetShipping.ShippingProviders
                 // Call the web service passing in a RateRequest and returning a RateReply
                 var reply = service.getRates(request);
                 
-                if (DebugLogging)
+                if (DebugFileLocation != "")
                 {
                     WriteResponseXML(reply);
                 }

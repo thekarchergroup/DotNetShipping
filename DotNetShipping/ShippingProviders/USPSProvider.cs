@@ -112,12 +112,13 @@ namespace DotNetShipping.ShippingProviders
             _service = service;
         }
 
-        public USPSProvider(string userId, string service, string shipDate)
+        public USPSProvider(string userId, string service, string shipDate, string debugFileLocation = "")
         {
             Name = "USPS";
             _userId = userId;
             _service = service;
             _shipDate = shipDate;
+            DebugFileLocation = debugFileLocation;
         }
 
         /// <summary>
@@ -229,7 +230,8 @@ namespace DotNetShipping.ShippingProviders
                     writer.WriteEndElement();
                     i++;
                 }
-                writer.WriteEndElement();
+                writer.WriteEndElement();      
+
                 writer.Flush();
             }
 
@@ -244,6 +246,13 @@ namespace DotNetShipping.ShippingProviders
                     specialServiceCodes.Add("119");                                 // 119 represents Adult Signature Required
 
                 ParseResult(response, specialServiceCodes);
+                
+                if (DebugFileLocation != "")
+                {
+                    System.IO.StreamWriter logfile = new System.IO.StreamWriter(DebugFileLocation + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "USPS-Request.xml", true);
+                    logfile.Write(sb.ToString());
+                    logfile.Close();
+                }
             }
             catch (Exception ex)
             {
@@ -334,6 +343,11 @@ namespace DotNetShipping.ShippingProviders
                 {
                     AddError(err);
                 }
+            }
+            
+            if (DebugFileLocation != "")
+            {
+                document.Save(DebugFileLocation + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss") + "-" + Shipment.DestinationAddress.CountryCode + "-" + Shipment.DestinationAddress.PostalCode + "-" + "USPS-Response.xml");
             }
         }
     }

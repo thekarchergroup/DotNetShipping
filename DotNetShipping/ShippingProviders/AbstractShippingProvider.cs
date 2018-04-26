@@ -15,7 +15,7 @@ namespace DotNetShipping.ShippingProviders
 
         public string Name { get; set; }
         public Shipment Shipment { get; set; }
-        protected bool DebugLogging { get; set; }
+        protected string DebugFileLocation { get; set; }
 
         protected void AddError(USPSError error)
         {
