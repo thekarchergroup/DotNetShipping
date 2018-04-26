@@ -275,44 +275,48 @@ namespace DotNetShipping.ShippingProviders
         private void ParseResult(string response, IList<String> includeSpecialServiceCodes = null)
         {
             var document = XElement.Parse(response, LoadOptions.None);
-
+            
             var rates = from item in document.Descendants("Postage")
                 group item by (string) item.Element("MailService")
                 into g
                 select new {Name = g.Key,
                             TotalCharges = g.Sum(x => Decimal.Parse((string) x.Element("Rate"))),
                             DeliveryDate = g.Select(x => (string) x.Element("CommitmentDate")).FirstOrDefault(),
-                            SpecialServices = g.Select(x => x.Element("SpecialServices")).FirstOrDefault() };
+                            SpecialServices = g.Select(x => x.Element("SpecialServices")).FirstOrDefault(),
+                            Packages = g.Count() };
 
             foreach (var r in rates)
             {
-                //string name = r.Name.Replace(REMOVE_FROM_RATE_NAME, string.Empty);
-                var name = Regex.Replace(r.Name, "&lt.*&gt;", "");
-                var additionalCharges = 0.0m;
-
-                if (includeSpecialServiceCodes != null && includeSpecialServiceCodes.Count > 0 && r.SpecialServices != null)
+                if (r.Packages == Shipment.Packages.Count)
                 {
-                    var specialServices = r.SpecialServices.XPathSelectElements("SpecialService").ToList();
-                    if (specialServices.Count > 0)
-                    {
-                        foreach (var specialService in specialServices)
-                        {
-                            var serviceId = (string)specialService.Element("ServiceID");
-                            var price = Decimal.Parse((string) specialService.Element("Price"));
+                    //string name = r.Name.Replace(REMOVE_FROM_RATE_NAME, string.Empty);
+                    var name = Regex.Replace(r.Name, "&lt.*&gt;", "");
+                    var additionalCharges = 0.0m;
 
-                            if (includeSpecialServiceCodes.Contains(serviceId.ToString()))
-                                additionalCharges += price;
+                    if (includeSpecialServiceCodes != null && includeSpecialServiceCodes.Count > 0 && r.SpecialServices != null)
+                    {
+                        var specialServices = r.SpecialServices.XPathSelectElements("SpecialService").ToList();
+                        if (specialServices.Count > 0)
+                        {
+                            foreach (var specialService in specialServices)
+                            {
+                                var serviceId = (string)specialService.Element("ServiceID");
+                                var price = Decimal.Parse((string)specialService.Element("Price"));
+
+                                if (includeSpecialServiceCodes.Contains(serviceId.ToString()))
+                                    additionalCharges += price;
+                            }
                         }
                     }
-                }
 
-                if (r.DeliveryDate != null)
-                {
-                    AddRate(name, string.Concat("USPS ", name), r.TotalCharges + additionalCharges, DateTime.Parse(r.DeliveryDate));
-                }
-                else
-                {
-                    AddRate(name, string.Concat("USPS ", name), r.TotalCharges + additionalCharges, DateTime.Now.AddDays(30));
+                    if (r.DeliveryDate != null)
+                    {
+                        AddRate(name, string.Concat("USPS ", name), r.TotalCharges + additionalCharges, DateTime.Parse(r.DeliveryDate));
+                    }
+                    else
+                    {
+                        AddRate(name, string.Concat("USPS ", name), r.TotalCharges + additionalCharges, DateTime.Now.AddDays(30));
+                    }
                 }
             }
 
