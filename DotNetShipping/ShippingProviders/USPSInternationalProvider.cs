@@ -184,26 +184,33 @@ namespace DotNetShipping.ShippingProviders
         {
             var document = XDocument.Load(new StringReader(response));
 
-            var rates = document.Descendants("Service").GroupBy(item => (string) item.Element("SvcDescription")).Select(g => new {Name = g.Key, TotalCharges = g.Sum(x => Decimal.Parse((string) x.Element("Postage")))});
+            var rates = document.Descendants("Service").GroupBy(item => (string) item.Element("SvcDescription")).Select(g => new {Name = g.Key, TotalCharges = g.Sum(x => Decimal.Parse((string) x.Element("Postage"))), Packages = g.Count()
+            });
 
             if (_service == "ALL")
             {
                 foreach (var r in rates)
                 {
-                    var name = Regex.Replace(r.Name, "&lt.*gt;", "");
+                    if (r.Packages == Shipment.Packages.Count)
+                    {
+                        var name = Regex.Replace(r.Name, "&lt.*gt;", "");
 
-                    AddRate(name, string.Concat("USPS ", name), r.TotalCharges, DateTime.Now.AddDays(30));
+                        AddRate(name, string.Concat("USPS ", name), r.TotalCharges, DateTime.Now.AddDays(30));
+                    }
                 }
             }
             else
             {
                 foreach (var r in rates)
                 {
-                    var name = Regex.Replace(r.Name, "&lt.*gt;", "");
-
-                    if (_service == name)
+                    if (r.Packages == Shipment.Packages.Count)
                     {
-                        AddRate(name, string.Concat("USPS ", name), r.TotalCharges, DateTime.Now.AddDays(30));
+                        var name = Regex.Replace(r.Name, "&lt.*gt;", "");
+
+                        if (_service == name)
+                        {
+                            AddRate(name, string.Concat("USPS ", name), r.TotalCharges, DateTime.Now.AddDays(30));
+                        }
                     }
                 }
             }
